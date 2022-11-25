@@ -17,14 +17,14 @@ resource "google_storage_bucket_object" "zip" {
 
 }
 
-# Create the Cloud function triggered by a `Finalize` event on the bucket
+# Create the Cloud function triggered by a publishing messages to a Pub/Sub topic
 resource "google_cloudfunctions2_function" "function" {
     name         = "evaluator"
     location = local.region
 
     build_config {
-        runtime = "python39"
-        entry_point = "hello_gcs"
+        runtime = "python310"
+        entry_point = "subscribe"
         source {
             storage_source {
                 bucket = google_storage_bucket.function_bucket.name

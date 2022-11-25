@@ -4,7 +4,7 @@ resource "google_pubsub_topic" "example" {
 }
 
 resource "google_pubsub_subscription" "example" {
-  name  = "example-subscription"
+  name  = "evaluator-subscription"
   topic = google_pubsub_topic.example.name
 
   ack_deadline_seconds = 20
