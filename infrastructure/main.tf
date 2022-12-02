@@ -11,11 +11,6 @@ terraform {
 }
 
 provider "google" {
-  project = local.project
-  region = local.region
-}
-
-locals {
-  project = "sustained-drake-368613"
-  region = "europe-west3"
+  project = var.project_id
+  region = var.region
 }

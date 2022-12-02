@@ -20,7 +20,7 @@ resource "google_storage_bucket_object" "zip" {
 # Create the Cloud function triggered by a publishing messages to a Pub/Sub topic
 resource "google_cloudfunctions2_function" "function" {
     name         = "evaluator"
-    location = local.region
+    location = var.region
 
     build_config {
         runtime = "python310"
@@ -35,7 +35,7 @@ resource "google_cloudfunctions2_function" "function" {
 
     event_trigger {
         event_type = "google.cloud.pubsub.topic.v1.messagePublished"
-        pubsub_topic   = google_pubsub_topic.example.id
+        pubsub_topic   = google_pubsub_topic.messages.id
     }
 
 }

@@ -6,8 +6,8 @@ import uuid
 import streamlit as st
 
 
-project_id = "sustained-drake-368613"
-topic_id = "test_topic"
+project_id = os.getenv("GOOGLE_PROJECT_ID")
+topic_id = "messages_topic"
 
 # Create a Pub/Sub client to interact with the API
 publisher = pubsub_v1.PublisherClient()

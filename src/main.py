@@ -3,7 +3,7 @@ import base64
 import functions_framework
 from google.cloud import firestore
 
-db = firestore.Client(project='sustained-drake-368613')
+db = firestore.Client()
 doc_ref = db.collection('messages')
 
 
