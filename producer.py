@@ -1,8 +1,7 @@
 import json
 import os
-from datetime import date
+from datetime import datetime
 from google.cloud import pubsub_v1
-import uuid
 import streamlit as st
 
 
@@ -17,39 +16,35 @@ topic_path = publisher.topic_path(project_id, topic_id)
 st.set_page_config(layout="centered", page_icon="📬", page_title="Message publisher")
 st.title("Publisher")
 st.write("Use the menu below to book a class!")
+
 st.write("Fill in the data:")
 form = st.form("template_form")
-username = form.text_input("User name")
+email = form.text_input("Email")
 venue = form.selectbox(
     "Choose venue",
     ["Berlin", "Hamburg", "Munich", "Frankfurt", "Dusseldorf"],
-    index=0,
+    index=1,
 )
 activity = form.selectbox(
     "Choose class",
-    ["Weightlifting 🏋️", "Boxing 🥊", "Swimming 🏊", "Tennis 🎾", "Yoga 🧘‍♀️", "Wrestling 🤼‍♂️"],
-    index=0,
+    ["Weightlifting", "Boxing", "Swimming", "Tennis", "Yoga", "Wrestling"],
+    index=1,
 )
-membership_type = form.radio("Select membership type", ["S", "M", "L"],
-                             horizontal=True)
 
 checkin_date = form.date_input("Select date")
+checkin_time = form.time_input("Select time")
 
-submit = form.form_submit_button("Send message")
+submit = form.form_submit_button("Confirm")
 
 if submit:
     message = {
-        "venue_id": str(uuid.uuid4()),
-        "checkin_id": str(uuid.uuid4()),
-        "booking_id": str(uuid.uuid4()),
         "venue": venue,
         "activity_type": activity,
         "checkin_date": str(checkin_date),
-        "booking_timestamp": str(date.today().strftime("%B %d, %Y")),
+        "checkin_time": str(checkin_time),
+        "booking_timestamp": str(datetime.now()),
         "user": {
-            "user_id": str(uuid.uuid4()),
-            "user_name": username,
-            "user_membership_type": membership_type,
+            "email": email
         },
     }
 

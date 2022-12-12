@@ -19,7 +19,7 @@ resource "google_storage_bucket_object" "zip" {
 
 # Create the Cloud function triggered by a publishing messages to a Pub/Sub topic
 resource "google_cloudfunctions2_function" "function" {
-    name         = "evaluator"
+    name         = "consumer"
     location = var.region
 
     build_config {
@@ -30,6 +30,16 @@ resource "google_cloudfunctions2_function" "function" {
                 bucket = google_storage_bucket.function_bucket.name
                 object = google_storage_bucket_object.zip.name
             }
+        }
+    }
+
+    service_config {
+        environment_variables = {
+            _db_password="changeme",
+            _db_user="user",
+            _dbname="fd-database",
+            instance_name="fd-instance",
+            project_id=var.project_id
         }
     }
 

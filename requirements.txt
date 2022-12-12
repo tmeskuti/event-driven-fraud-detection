@@ -1,4 +1,3 @@
 functions-framework
-google-cloud-firestore
 google-cloud-pubsub
 streamlit

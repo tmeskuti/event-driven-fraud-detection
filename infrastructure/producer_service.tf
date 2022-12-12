@@ -38,4 +38,5 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   service     = google_cloud_run_service.producer.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
+
 }
