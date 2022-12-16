@@ -19,21 +19,30 @@ def subscribe(cloud_event):
 
     # Firstly the event is stored in Firestore as a document
     doc_ref.add(event_dict)
-    # We then extract the user email from the message, as it
+    # We then extract the fields we need from the message
     email_msg = event_dict["user"]["email"]
     date_msg = event_dict["checkin_date"]
     activity_msg = event_dict["activity_type"]
     id_msg = event_dict["checkin_id"]
+    region_msg = event_dict["venue"]
 
     # Insert message in the checkins table
-    result = bq.query(f"""
+    insert1 = bq.query(f""" 
         insert into fraud_detection.checkins
-        select '{id_msg}', '{date_msg}', user_id, venue_id, '{activity_msg}' 
-        from `fraud_detection.venue` join `fraud_detection.users` using (region)
+        select distinct '{id_msg}', date('{date_msg}'), user_id, venue_id, '{activity_msg}' 
+        from `fraud_detection.users` join `fraud_detection.venue` using (region)
+        where email = '{email_msg}'
     """)
 
-    print(result)
+    print(f"insertion: {insert1.result()}")
 
+    # insert2 = bq.query(f"""
+    #         insert into fraud_detection.checkins c (venue_id)
+    #         select venue_id
+    #         from `fraud_detection.venue`
+    #         where region = '{region_msg}' and venue_id is null  """)
+    #
+    # print(f"insertion: {insert2.result()}")
 
     rule1 = f"""
         select c.user_id, u.email, checkin_date, count(distinct v.region) as region_count
@@ -90,3 +99,4 @@ def subscribe(cloud_event):
             values.append(row[result])
 
     print(values)
+
