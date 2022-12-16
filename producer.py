@@ -1,5 +1,6 @@
 import json
 import os
+import uuid
 from datetime import datetime
 from google.cloud import pubsub_v1
 import streamlit as st
@@ -38,6 +39,7 @@ submit = form.form_submit_button("Confirm")
 
 if submit:
     message = {
+        "checkin_id": str(uuid.uuid4()),
         "venue": venue,
         "activity_type": activity,
         "checkin_date": str(checkin_date),

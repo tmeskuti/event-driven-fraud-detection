@@ -72,7 +72,7 @@ resource "google_bigquery_table" "checkins" {
 [
   {
     "name": "checkin_id",
-    "type": "INT64",
+    "type": "STRING",
     "mode": "NULLABLE"
   },
   {
@@ -142,12 +142,12 @@ resource "google_bigquery_table" "fraud" {
   },
   {
     "name": "event_id",
-    "type": "INT64",
+    "type": "STRING",
     "mode": "NULLABLE"
   },
   {
     "name": "checkin_id",
-    "type": "INT64",
+    "type": "STRING",
     "mode": "NULLABLE"
   },
   {
