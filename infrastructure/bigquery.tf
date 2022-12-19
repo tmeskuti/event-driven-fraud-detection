@@ -137,11 +137,6 @@ resource "google_bigquery_table" "fraud" {
 [
   {
     "name": "fraud_id",
-    "type": "INT64",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "event_id",
     "type": "STRING",
     "mode": "NULLABLE"
   },

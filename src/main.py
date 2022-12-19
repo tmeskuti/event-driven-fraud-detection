@@ -1,6 +1,7 @@
 import base64
 import functions_framework
 import json
+import uuid
 from google.cloud import bigquery, firestore
 
 # Create the Firestore client and collection
@@ -27,25 +28,17 @@ def subscribe(cloud_event):
     region_msg = event_dict["venue"]
 
     # Insert message in the checkins table
-    insert1 = bq.query(f""" 
+    insert = bq.query(f""" 
         insert into fraud_detection.checkins
-        select distinct '{id_msg}', date('{date_msg}'), user_id, venue_id, '{activity_msg}' 
-        from `fraud_detection.users` join `fraud_detection.venue` using (region)
-        where email = '{email_msg}'
+        select '{id_msg}', date('{date_msg}'), u.user_id, v.venue_id, '{activity_msg}' 
+        from `fraud_detection.users` u join `fraud_detection.venue` v using (region)
+        where u.email = '{email_msg}' and v.region = '{region_msg}'
     """)
 
-    print(f"insertion: {insert1.result()}")
-
-    # insert2 = bq.query(f"""
-    #         insert into fraud_detection.checkins c (venue_id)
-    #         select venue_id
-    #         from `fraud_detection.venue`
-    #         where region = '{region_msg}' and venue_id is null  """)
-    #
-    # print(f"insertion: {insert2.result()}")
+    print(f"insertion: {insert.result()}")
 
     rule1 = f"""
-        select c.user_id, u.email, checkin_date, count(distinct v.region) as region_count
+        select c.user_id, u.email, checkin_date, count(distinct v.region) > 1 as region_count
         from `fraud_detection.checkins` as c join `fraud_detection.venue` as v using (venue_id) join `fraud_detection.users`
         as u on c.user_id = u.user_id
         where u.email = '{email_msg}' and c.checkin_date = '{date_msg}'
@@ -55,12 +48,12 @@ def subscribe(cloud_event):
     result1 = "region_count"
 
     rule2 = f"""
-        select user_id, email, checkin_date, count(*) as checkins_outside
+        select user_id, email, checkin_date, count(*) > 3 as checkins_outside
         from `fraud_detection.users` as u join `fraud_detection.checkins` as c using (user_id)
         join `fraud_detection.venue` as v on v.venue_id = c.venue_id
         where u.email = '{email_msg}' and u.region != v.region
         group by 1, 2, 3
-        order by checkin_date asc limit 3
+        order by checkin_date asc 
     """
 
     result2 = "checkins_outside"
@@ -86,7 +79,7 @@ def subscribe(cloud_event):
 
     rules = [rule1, rule2, rule3, rule4]
     results = [result1, result2, result3, result4]
-    values = []
+    flags = ['MULTIPLE_REGIONS_PER_DAY', '3_CHECKINS_OUTSIDE_HOME', 'FAIR_USAGE', 'MULTIPLE_SPORTS_LAST 2_WEEKS']
 
     for rule, result in zip(rules, results):
         print(f"query: {rule}")
@@ -96,7 +89,9 @@ def subscribe(cloud_event):
 
         for row in rows:
             print(f'last row {row[result]}')
-            values.append(row[result])
+            # bq.query(f"""
+            #     insert into fraud_detection.fraud
+            #     select '{uuid.uuid4()}', '{id_msg}', '{flags[row]}'
+            # """)
 
-    print(values)
 
