@@ -132,4 +132,5 @@ dmypy.json
 /infrastructure/.terraform.lock.hcl
 /infrastructure/.terraform/
 
+# JetBrains
 .idea

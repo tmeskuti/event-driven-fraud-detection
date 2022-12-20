@@ -1,4 +1,6 @@
 import base64
+import logging
+
 import functions_framework
 import json
 import uuid
@@ -28,11 +30,12 @@ def subscribe(cloud_event):
     region_msg = event_dict["venue"]
 
     # Insert message in the checkins table
-    insert = bq.query(f""" 
+    insert = bq.query(f"""
         insert into fraud_detection.checkins
-        select '{id_msg}', date('{date_msg}'), u.user_id, v.venue_id, '{activity_msg}' 
-        from `fraud_detection.users` u join `fraud_detection.venue` v using (region)
-        where u.email = '{email_msg}' and v.region = '{region_msg}'
+        select '{id_msg}', date('{date_msg}'), 
+        (select user_id from `fraud_detection.users` where email='{email_msg}'), 
+        (select venue_id from `fraud_detection.venue` where region='{region_msg}'), 
+        '{activity_msg}'
     """)
 
     print(f"insertion: {insert.result()}")
@@ -59,10 +62,10 @@ def subscribe(cloud_event):
     result2 = "checkins_outside"
 
     rule3 = f"""
-        select c.user_id, u.email, checkin_date, count(*) checkins_day
+        select c.user_id, u.email, checkin_date, count(*) > 3 as checkins_day 
         from `fraud_detection.checkins` as c join `fraud_detection.venue` as v using (venue_id) join `fraud_detection.users`
         as u on c.user_id = u.user_id
-        where u.email = '{email_msg}'
+        where u.email = '{email_msg}' and c.checkin_date = '{date_msg}'
         group by 1, 2, 3;
     """
 
@@ -79,19 +82,21 @@ def subscribe(cloud_event):
 
     rules = [rule1, rule2, rule3, rule4]
     results = [result1, result2, result3, result4]
-    flags = ['MULTIPLE_REGIONS_PER_DAY', '3_CHECKINS_OUTSIDE_HOME', 'FAIR_USAGE', 'MULTIPLE_SPORTS_LAST 2_WEEKS']
+    flags = ['MULTIPLE_REGIONS_PER_DAY', '3_CHECKINS_OUTSIDE_HOME', 'FAIR_USAGE', 'MULTIPLE_SPORTS_LAST_2_WEEKS']
 
-    for rule, result in zip(rules, results):
+    for rule, result, flag in zip(rules, results, flags):
         print(f"query: {rule}")
         print(f"result: {result}")
         query_job = bq.query(rule)
         rows = query_job.result()  # Waits for query to finish
 
         for row in rows:
-            print(f'last row {row[result]}')
-            # bq.query(f"""
-            #     insert into fraud_detection.fraud
-            #     select '{uuid.uuid4()}', '{id_msg}', '{flags[row]}'
-            # """)
+            logging.warning(f'last row {row[result]}')
 
-
+            if row[result]:
+                bq.query(f"""
+                    insert into fraud_detection.fraud
+                    values('{uuid.uuid4()}', '{id_msg}', '{flag}')
+                """)
+            else:
+                print("Not applicable")
