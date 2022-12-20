@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - producer/**
   workflow_dispatch:
 
 env:
@@ -29,7 +31,7 @@ jobs:
 
       - name: Push Docker Image to GCP Artifact Registry
         run: |-
-          gcloud builds submit --tag $GCP_REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:${GITHUB_SHA::7}
+          gcloud builds submit --tag $GCP_REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:${GITHUB_SHA::7} --file=./producer/Dockerfile
           gcloud container images add-tag $GCP_REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:${GITHUB_SHA::7} $GCP_REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_NAME/$IMAGE_NAME:latest
 
       - name: Deploy Cloud Run from GCP Artifact Registry
