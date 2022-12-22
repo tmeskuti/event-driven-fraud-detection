@@ -1,3 +1,2 @@
-functions-framework
 google-cloud-pubsub
 streamlit
