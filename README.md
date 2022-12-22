@@ -13,11 +13,13 @@ This repository is used to implement an event-based fraud detection system using
 To run the demo, please enable the needed APIs (each of the services listed above). If you don't, Terraform will prompt you to enable them sequentially.
 
 ### Steps
-- Authenticate with your GCP project using `gcloud auth application-default login`
-- Push the image to your Artifact Repository 
-  - `gcloud builds submit --tag <YOUR_GCP_REGION>-docker.pkg.dev/<YOUR_GCP_PROJECT_ID>/fraud-detection/event-producer`
-- Install the Terraform CLI
+- [Install the Terraform CLI](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 - Set `$GCP_CREDENTIALS` and `$GCP_PROJECT_ID` as GitHub Actions secrets
+- Authenticate with your GCP project using `gcloud auth application-default login`
+- Push the image to your Artifact Repository
+```bash 
+gcloud builds submit --tag <YOUR_GCP_REGION>-docker.pkg.dev/<YOUR_GCP_PROJECT_ID>/fraud-detection/event-producer`
+```
 
 ## Running the demo
 1. ### Set environment variables
@@ -26,7 +28,7 @@ export TF_VAR_region=<YOUR_GCP_REGION>
 export TF_VAR_project_id=<YOUR_GCP_PROJECT_ID>
 ```
 2. ### Change the Terraform state file bucket 
-- https://github.com/tmeskuti/event-driven-fraud-detection/blob/bf10748d4620285651d2ed9402315f185de6e5cd/infrastructure/main.tf#L3
+https://github.com/tmeskuti/event-driven-fraud-detection/blob/bf10748d4620285651d2ed9402315f185de6e5cd/infrastructure/main.tf#L3
 
 3. ### Initialize the Terraform backend
 ```bash
