@@ -10,9 +10,10 @@ This repository is used to implement an event-based fraud detection system using
 - Firestore
 
 ## Prerequisites
-To run the demo, please enable the needed APIs (each of the services listed above). If you don't, Terraform will prompt you to enable them sequentially.
+To run the demo, you need to have a Google Cloud project (that has the APIs listed above enabled), and also have Terraform installed on your device. Please stick to the steps below to set up ever
 
 ### Steps
+- [Install the gcloud CLI](https://cloud.google.com/sdk/docs/install)
 - [Install the Terraform CLI](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 - Set `$GCP_CREDENTIALS` and `$GCP_PROJECT_ID` as GitHub Actions secrets
 - Authenticate with your GCP project using `gcloud auth application-default login`
